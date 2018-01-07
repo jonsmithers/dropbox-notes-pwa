@@ -3,16 +3,30 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import Utils from './utils/Utils'
-let Dropbox = require('dropbox');
-var dropbox = new Dropbox({ clientId: "n3vr1jhr2vpy2az" });
-// var authenticaionUrl = dropbox.getAuthenticationUrl(location.toString())
-function getAccessTokenFromUrl() {
-    // return utils.parseQueryString(window.location.hash).access_token;
-}
-function isAuthenticated() {
-    return !!getAccessTokenFromUrl();
-}
 
-ReactDOM.render(<App />, document.getElementById('root'));
+import { ConnectedRouter, routerReducer, routerMiddleware, push } from 'react-router-redux'
+import { createStore, combineReducers, applyMiddleware } from 'redux'
+import createHistory from 'history/createBrowserHistory'
+import { Provider } from 'react-redux'
+const history = createHistory()
+const middleware = routerMiddleware(history)
+const store = createStore(
+  combineReducers({
+    // ...reducers,
+    router: routerReducer
+  }),
+  applyMiddleware(middleware)
+)
+console.log(window._store = store);
+
+
+ReactDOM.render(
+  <Provider store={store}>
+      <ConnectedRouter history={history}>
+          <App /> 
+      </ConnectedRouter>
+  </Provider>,
+  document.getElementById('root')
+);
+
 registerServiceWorker();
