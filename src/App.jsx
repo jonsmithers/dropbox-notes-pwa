@@ -2,14 +2,22 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import DropboxAuthenticationButton from './components/DropboxAuthenticationButton';
-import {
-  BrowserRouter as Router,
-  Route,
-  Link
-} from 'react-router-dom'
+import { connect } from 'react-redux'
+import Utils from './utils/Utils'
 
+function mapStateToProps(state) {
+  let {access_token, token_type, uid, account_id}  = Utils.parseQueryString(state.router.location.hash);
+  return {
+    dropboxStuff: {
+      access_token,
+      token_type,
+      uid,
+      account_id
+    }
+  }
+}
 
-class App extends Component {
+let App = connect(mapStateToProps)(class extends Component {
   render() {
     return (
       <div className="App">
@@ -21,9 +29,18 @@ class App extends Component {
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
         <DropboxAuthenticationButton></DropboxAuthenticationButton>
+        <p>
+          {this.props.myReduxText}
+        </p>
+        <p>
+          {this.props.dropboxStuff.access_token }
+        </p>
+        <p>
+          {this.props.dropboxStuff.token_type }
+        </p>
       </div>
     );
   }
-}
+})
 
 export default App;
