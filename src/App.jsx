@@ -4,6 +4,7 @@ import './App.css';
 import DropboxAuthenticationButton from './components/DropboxAuthenticationButton';
 import { connect } from 'react-redux'
 import Utils from './utils/Utils'
+import FileList from './components/FileList';
 
 function mapStateToProps(state) {
   let {access_token, token_type, uid, account_id}  = Utils.parseQueryString(state.router.location.hash);
@@ -38,6 +39,7 @@ let App = connect(mapStateToProps)(class extends Component {
         <p>
           {this.props.dropboxStuff.token_type }
         </p>
+        <FileList/>
       </div>
     );
   }
