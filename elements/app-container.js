@@ -1,3 +1,4 @@
+import "./dropbox-authentication-button.js";
 import "@polymer/app-layout/app-drawer/app-drawer.js";
 import "@polymer/app-layout/app-header/app-header.js";
 import "@polymer/app-layout/app-toolbar/app-toolbar.js";
@@ -44,14 +45,13 @@ export class AppContainer extends PolymerElement {
         <app-toolbar>
           Hello there
         </app-toolbar>
+        <dropbox-authentication-button>
+        </dropbox-authentication-button>
       </div>
     `;
   }
   constructor() {
     super();
-    let dropbox = new Dropbox.Dropbox({ clientId: "n3vr1jhr2vpy2az" });
-    console.log('dropbox', dropbox);
-
   }
 }
 
