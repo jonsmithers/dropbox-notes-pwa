@@ -1,13 +1,10 @@
-import "../node_modules/@polymer/app-layout/app-drawer/app-drawer.js";
-import "../node_modules/@polymer/app-layout/app-header/app-header.js";
-import "../node_modules/@polymer/app-layout/app-toolbar/app-toolbar.js";
-import "../node_modules/@polymer/paper-button/paper-button.js";
-import "../node_modules/@polymer/paper-icon-button/paper-icon-button.js";
-import "../node_modules/@polymer/paper-tabs/paper-tabs.js";
-import "./recording-controls.js";
-import "./swipe-tabs.js";
-import {Element as PolymerElement, html} from "../node_modules/@polymer/polymer/polymer-element.js";
-import {RecordingSession} from '../RecordingSession.js';
+import "@polymer/app-layout/app-drawer/app-drawer.js";
+import "@polymer/app-layout/app-header/app-header.js";
+import "@polymer/app-layout/app-toolbar/app-toolbar.js";
+import "@polymer/paper-button/paper-button.js";
+import "@polymer/paper-icon-button/paper-icon-button.js";
+import "@polymer/paper-tabs/paper-tabs.js";
+import {PolymerElement, html} from "@polymer/polymer/polymer-element.js";
 
 export class AppContainer extends PolymerElement {
   static get is() {
@@ -45,17 +42,8 @@ export class AppContainer extends PolymerElement {
       </style>
       <div id="flexContainer" class="verticalFlex">
         <app-toolbar>
-          <!-- <div main-title>Record</div> -->
-          <paper-tabs>
-            <paper-tab>Record</paper-tab>
-            <paper-tab>Listen</paper-tab>
-          </paper-tabs>
+          Hello there
         </app-toolbar>
-        <swipe-tabs class="flewGrow">
-          <div slot="left">
-            <recording-controls></recording-controls>
-          </div>
-        </swipe-tabs>
       </div>
     `;
   }

@@ -1,5 +1,5 @@
 {
-  "name": "soundkeep",
+  "name": "dropbox-notes-pwa",
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
@@ -8,20 +8,22 @@
   "private": true,
   "flat": true,
   "scripts": {
-    "start": "http-server -o -c -1"
+    "zstart": "http-server -o -c -1",
+    "start": "./node_modules/polymer-cli/bin/polymer.js serve --module-resolution=node"
   },
   "dependencies": {
-    "@polymer/app-layout": "^3.0.0-pre.4",
-    "@polymer/iron-icons": "^3.0.0-pre.4",
-    "@polymer/iron-pages": "^3.0.0-pre.4",
-    "@polymer/paper-button": "^3.0.0-pre.4",
-    "@polymer/paper-checkbox": "^3.0.0-pre.4",
-    "@polymer/paper-fab": "^3.0.0-pre.4",
-    "@polymer/paper-icon-button": "^3.0.0-pre.4",
-    "@polymer/paper-input": "^3.0.0-pre.4",
-    "@polymer/paper-tabs": "^3.0.0-pre.4",
-    "@polymer/polymer": "^3.0.0-pre.4",
+    "@polymer/app-layout": "3.0.0-pre.12",
+    "@polymer/iron-icons": "3.0.0-pre.12",
+    "@polymer/iron-pages": "3.0.0-pre.12",
+    "@polymer/paper-button": "3.0.0-pre.12",
+    "@polymer/paper-checkbox": "3.0.0-pre.12",
+    "@polymer/paper-fab": "3.0.0-pre.12",
+    "@polymer/paper-icon-button": "3.0.0-pre.12",
+    "@polymer/paper-input": "3.0.0-pre.12",
+    "@polymer/paper-tabs": "3.0.0-pre.12",
+    "@polymer/polymer": "3.0.0-pre.12",
     "http-server": "^0.11.1",
+    "polymer-cli": "^1.7.0-pre.10",
     "rxjs": "^5.5.7"
   },
   "devDependencies": {
