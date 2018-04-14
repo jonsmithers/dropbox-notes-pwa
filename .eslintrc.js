@@ -2,6 +2,9 @@ module.exports = {
   "plugins": [
     "html"
   ],
+  "globals": {
+    "Dropbox": false,
+  },
   "env": {
     "browser": true,
     "node":    false,

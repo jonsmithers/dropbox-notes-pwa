@@ -47,6 +47,12 @@ export class AppContainer extends PolymerElement {
       </div>
     `;
   }
+  constructor() {
+    super();
+    let dropbox = new Dropbox.Dropbox({ clientId: "n3vr1jhr2vpy2az" });
+    console.log('dropbox', dropbox);
+
+  }
 }
 
 customElements.define(AppContainer.is, AppContainer);
