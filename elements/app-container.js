@@ -8,6 +8,7 @@ import "@polymer/paper-tabs/paper-tabs.js";
 import {store} from "../app-store.js";
 import "./router.js";
 import {html, render} from 'lit-html';
+import {Dropbox} from '../lib/dropbox.js';
 
 export class AppContainer extends HTMLElement {
   static get is() {
