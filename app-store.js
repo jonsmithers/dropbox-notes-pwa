@@ -1,17 +1,14 @@
 import {createStore, combineReducers} from './lib/redux';
 import {parseQueryString} from './utils.js';
 
-
-let rootReducer = combineReducers({dropbox: dropboxReducer});
-
 function dropboxReducer(state, action) {
   switch(action.type) {
     case 'dropbox-authenticate': {
       let {access_token, token_type, uid, account_id} = action;
-      return {access_token, token_type, uid, account_id};
+      return { ...state, access_token, token_type, uid, account_id};
     }
     default:
-      return {
+      return state || {
         access_token: null,
         token_type: null,
         uid: null,
@@ -28,6 +25,32 @@ export let DropboxDispatchers = {
     store.dispatch(action);
   }
 }
+
+function dropboxCacheReducer(state, action) {
+  switch(action.type) {
+    case('dropboxcache-listFiles'): {
+      return {
+        ...state,
+        fileList: action.fileList
+      }
+    }
+    default:
+      return state || {
+        fileList: null
+      }
+  }
+}
+export let DropboxCacheDispatchers = {
+  listFiles(fileList) {
+    if (!Array.isArray(fileList)) throw new Error('need array');
+    store.dispatch({
+      fileList,
+      type: 'dropboxcache-listFiles'
+    });
+  }
+}
+
+let rootReducer = combineReducers({dropbox: dropboxReducer, dropboxCache: dropboxCacheReducer});
 export let store = createStore(rootReducer);
 window.store = store; // for dev testing
 

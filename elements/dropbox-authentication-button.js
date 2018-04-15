@@ -25,7 +25,6 @@ export class DropboxAuthenticationButton extends PolymerElement {
     super();
     let dropbox = new Dropbox.Dropbox({ clientId: "n3vr1jhr2vpy2az" });
     this._authenticationUrl = dropbox.getAuthenticationUrl(window.location.toString());
-    console.log('dropbox', dropbox);
   }
 }
 
