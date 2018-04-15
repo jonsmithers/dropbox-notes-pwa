@@ -19,10 +19,13 @@ function dropboxReducer(state, action) {
       };
   }
 }
-export let DropboxActionFactory = {
+export let DropboxDispatchers = {
   authenticate(stuff) {
-    stuff.type='dropbox-authenticate';
-    return stuff;
+    let action = {
+      ...stuff,
+      type: 'dropbox-authenticate'
+    };
+    store.dispatch(action);
   }
 }
 export let store = createStore(rootReducer);

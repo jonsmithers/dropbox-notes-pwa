@@ -6,7 +6,8 @@ import "@polymer/paper-button/paper-button.js";
 import "@polymer/paper-icon-button/paper-icon-button.js";
 import "@polymer/paper-tabs/paper-tabs.js";
 import {PolymerElement, html} from "@polymer/polymer/polymer-element.js";
-import "../app-store.js";
+import {store} from "../app-store.js";
+import "./router.js";
 
 export class AppContainer extends PolymerElement {
   static get is() {
@@ -46,13 +47,23 @@ export class AppContainer extends PolymerElement {
         <app-toolbar>
           Hello there
         </app-toolbar>
-        <dropbox-authentication-button>
-        </dropbox-authentication-button>
+        <template is="dom-if" if="[[!isAuthenticated]]">
+          <dropbox-authentication-button></dropbox-authentication-button>
+        </template>
+        <template is="dom-if" if="[[isAuthenticated]]">
+          <div> we authenticated </div>
+        </template>
       </div>
     `;
   }
   constructor() {
     super();
+    this.isAuthenticated = false;
+    console.log('isAuthenticated', this.isAuthenticated);
+    store.subscribe(() => {
+      this.isAuthenticated = store.getState().dropbox.access_token;
+      console.log('isAuthenticated', this.isAuthenticated);
+    });
   }
 }
 
