@@ -53,11 +53,11 @@ export class AppContainer extends QueryMixin(HTMLElement) {
         </app-toolbar>
         ${this.isAuthenticated ? html`
           ${!this.fileList ? html`
-            <paper-button on-click=${e => this.onFetchBtn(e)}>
+            <paper-button on-click=${e => this.onFetchBtn()}>
               fetch notes
             </paper-button>
           ` : repeat(this.fileList || [], null, (file, index) => html`
-            <paper-item on-click=${this.onFileClick} data="${file}">${file.name}</paper-item>
+            <paper-item on-click=${() => this.onFileClick(file.name)} data="${file}">${file.name}</paper-item>
           `)}
           ` : html`
             <dropbox-authentication-button></dropbox-authentication-button>
@@ -65,9 +65,14 @@ export class AppContainer extends QueryMixin(HTMLElement) {
       </div>
     `, this.shadowRoot);
   }
-  onFileClick(e) {
-    console.log('%cHEY', 'font-size:15px');
-    console.log(e);
+  async onFileClick(fileName) {
+    let {fileBlob} = await this.dropbox.filesDownload({path: '/vim-notes/' + fileName});
+    let fileReader = new FileReader();
+    let readPromise = new Promise(resolve => fileReader.onload=resolve);
+    fileReader.readAsText(fileBlob);
+    await readPromise;
+    let fileContents = fileReader.result;
+    console.log('fileContents', fileContents);
   }
   onFetchBtn() {
     this.dropbox.filesListFolder({path: '/vim-notes', recursive: false, include_media_info: false, include_deleted: false, include_has_explicit_shared_members: false, include_mounted_folders: false}).then(response => {
