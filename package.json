@@ -16,6 +16,7 @@
     "@polymer/iron-icons": "3.0.0-pre.12",
     "@polymer/iron-location": "3.0.0-pre.12",
     "@polymer/iron-pages": "3.0.0-pre.12",
+    "@polymer/paper-item": "3.0.0-pre.12",
     "@polymer/paper-button": "3.0.0-pre.12",
     "@polymer/paper-checkbox": "3.0.0-pre.12",
     "@polymer/paper-fab": "3.0.0-pre.12",

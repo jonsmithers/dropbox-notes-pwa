@@ -2,15 +2,18 @@ import "./dropbox-authentication-button.js";
 import "@polymer/app-layout/app-drawer/app-drawer.js";
 import "@polymer/app-layout/app-header/app-header.js";
 import "@polymer/app-layout/app-toolbar/app-toolbar.js";
+import "@polymer/paper-item/paper-item.js";
 import "@polymer/paper-button/paper-button.js";
 import "@polymer/paper-icon-button/paper-icon-button.js";
 import "@polymer/paper-tabs/paper-tabs.js";
 import {store} from "../app-store.js";
 import "./router.js";
 import {html, render} from 'lit-html';
+import {repeat} from '../node_modules/lit-html/lib/repeat.js'
 import {Dropbox} from '../lib/dropbox.js';
+import {QueryMixin} from './query-mixin.js';
 
-export class AppContainer extends HTMLElement {
+export class AppContainer extends QueryMixin(HTMLElement) {
   static get is() {
     return "app-container";
   }
@@ -49,24 +52,39 @@ export class AppContainer extends HTMLElement {
           Hello there
         </app-toolbar>
         ${this.isAuthenticated ? html`
-          <paper-button>
+          <paper-button id="fetchBtn">
             fetch notes
           </paper-button>
         ` : html`
           <dropbox-authentication-button></dropbox-authentication-button>
         `}
+        ${repeat(this.fileList || [], null, (file, index) => html`
+          <paper-item>${file.name}</paper-item>
+        `)};
       </div>
     `, this.shadowRoot);
   }
   constructor() {
     super();
+    window.testhing = this;
     this.attachShadow({mode: 'open'});
     this.isAuthenticated = false;
     this.render();
+    console.log(this.shadowRoot);
     store.subscribe(() => {
       this.isAuthenticated = store.getState().dropbox.access_token;
-      console.log('isAuthenticated', this.isAuthenticated);
       this.render();
+      if (this.isAuthenticated) {
+        this.$.fetchBtn.addEventListener('click', () => {
+          dropbox.filesListFolder({path: '/vim-notes', recursive: false, include_media_info: false, include_deleted: false, include_has_explicit_shared_members: false, include_mounted_folders: false}).then(response => {
+            console.log(response.entries);
+            this.fileList = response.entries;
+            this.render();
+          });
+        });
+        let dropbox = new Dropbox({ accessToken: store.getState().dropbox.access_token});
+        window.thedropbox = dropbox; // for dev testing
+      }
     });
   }
 }
