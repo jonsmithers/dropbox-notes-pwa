@@ -6,6 +6,7 @@ import "@polymer/paper-button/paper-button.js";
 import "@polymer/paper-icon-button/paper-icon-button.js";
 import "@polymer/paper-tabs/paper-tabs.js";
 import {PolymerElement, html} from "@polymer/polymer/polymer-element.js";
+import "../app-store.js";
 
 export class AppContainer extends PolymerElement {
   static get is() {

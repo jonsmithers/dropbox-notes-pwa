@@ -16,7 +16,7 @@ module.exports = {
   },
   "extends": "eslint:recommended",
   "rules": {
-    "indent":                [ "warn", 2        ],
+    "indent":                [ "warn", 2, {SwitchCase: 1}        ],
     "linebreak-style":       [ "warn", "unix"   ],
     "no-console":            [ "off", {allow: ["warn", "error"]} ],
     "no-constant-condition": [ "warn", {checkLoops: false}],
