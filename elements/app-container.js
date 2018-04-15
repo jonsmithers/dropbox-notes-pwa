@@ -5,16 +5,16 @@ import "@polymer/app-layout/app-toolbar/app-toolbar.js";
 import "@polymer/paper-button/paper-button.js";
 import "@polymer/paper-icon-button/paper-icon-button.js";
 import "@polymer/paper-tabs/paper-tabs.js";
-import {PolymerElement, html} from "@polymer/polymer/polymer-element.js";
 import {store} from "../app-store.js";
 import "./router.js";
+import {html, render} from 'lit-html';
 
-export class AppContainer extends PolymerElement {
+export class AppContainer extends HTMLElement {
   static get is() {
     return "app-container";
   }
-  static get template() {
-    return html`
+  render() {
+    render(html`
       <style>
         swipe-tabs {
           width: 100%;
@@ -47,22 +47,25 @@ export class AppContainer extends PolymerElement {
         <app-toolbar>
           Hello there
         </app-toolbar>
-        <template is="dom-if" if="[[!isAuthenticated]]">
+        ${this.isAuthenticated ? html`
+          <paper-button>
+            fetch notes
+          </paper-button>
+        ` : html`
           <dropbox-authentication-button></dropbox-authentication-button>
-        </template>
-        <template is="dom-if" if="[[isAuthenticated]]">
-          <div> we authenticated </div>
-        </template>
+        `}
       </div>
-    `;
+    `, this.shadowRoot);
   }
   constructor() {
     super();
+    this.attachShadow({mode: 'open'});
     this.isAuthenticated = false;
-    console.log('isAuthenticated', this.isAuthenticated);
+    this.render();
     store.subscribe(() => {
       this.isAuthenticated = store.getState().dropbox.access_token;
       console.log('isAuthenticated', this.isAuthenticated);
+      this.render();
     });
   }
 }
