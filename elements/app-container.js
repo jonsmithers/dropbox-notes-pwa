@@ -8,7 +8,7 @@ import "@polymer/paper-icon-button/paper-icon-button.js";
 import "@polymer/paper-tabs/paper-tabs.js";
 import {store, DropboxCacheDispatchers} from "../app-store.js";
 import "./router.js";
-import {html, render} from 'lit-html';
+import {html, render} from '../node_modules/lit-html/lib/lit-extended.js';
 import {repeat} from '../node_modules/lit-html/lib/repeat.js'
 import {Dropbox} from '../lib/dropbox.js';
 import {QueryMixin} from './query-mixin.js';
@@ -53,17 +53,26 @@ export class AppContainer extends QueryMixin(HTMLElement) {
         </app-toolbar>
         ${this.isAuthenticated ? html`
           ${!this.fileList ? html`
-            <paper-button id="fetchBtn">
+            <paper-button on-click=${e => this.onFetchBtn(e)}>
               fetch notes
             </paper-button>
           ` : repeat(this.fileList || [], null, (file, index) => html`
-            <paper-item>${file.name}</paper-item>
+            <paper-item on-click=${this.onFileClick} data="${file}">${file.name}</paper-item>
           `)}
           ` : html`
             <dropbox-authentication-button></dropbox-authentication-button>
         `}
       </div>
     `, this.shadowRoot);
+  }
+  onFileClick(e) {
+    console.log('%cHEY', 'font-size:15px');
+    console.log(e);
+  }
+  onFetchBtn() {
+    this.dropbox.filesListFolder({path: '/vim-notes', recursive: false, include_media_info: false, include_deleted: false, include_has_explicit_shared_members: false, include_mounted_folders: false}).then(response => {
+      DropboxCacheDispatchers.listFiles(response.entries);
+    });
   }
   constructor() {
     super();
@@ -80,13 +89,6 @@ export class AppContainer extends QueryMixin(HTMLElement) {
       // deferred initialization
       if (this.isAuthenticated) {
         this.dropbox = new Dropbox({ accessToken: store.getState().dropbox.access_token});
-      }
-      if (this.isAuthenticated && !this.fileList) {
-        this.$.fetchBtn.onclick = () => {
-          this.dropbox.filesListFolder({path: '/vim-notes', recursive: false, include_media_info: false, include_deleted: false, include_has_explicit_shared_members: false, include_mounted_folders: false}).then(response => {
-            DropboxCacheDispatchers.listFiles(response.entries);
-          });
-        };
       }
     });
   }
