@@ -1,22 +1,52 @@
 import {parseQueryString} from '../utils.js';
-import {DropboxDispatchers} from '../app-store.js';
+import {store, DropboxDispatchers, UiDispatchers} from '../app-store.js';
+
+export function setHash(hash) {
+  location = '#' + hash;
+  // history.pushState(null, null, '#' + hash); <-- doesn't trigger hashchange event
+}
 
 function onHashChange(hash) {
-  if (!hash) {
-    if (localStorage.getItem('dropbox-authentication')) {
-      DropboxDispatchers.authenticate(JSON.parse(localStorage.getItem('dropbox-authentication')));
-    }
+
+  if (!store.getState().dropbox.access_token && localStorage.getItem('dropbox-authentication')) {
+    DropboxDispatchers.authenticate(JSON.parse(localStorage.getItem('dropbox-authentication')));
   }
+
   let parseResults = parseQueryString(location.hash);
   if (parseResults.access_token) {
     localStorage.setItem('dropbox-authentication', JSON.stringify(parseResults));
     DropboxDispatchers.authenticate(parseResults);
-    history.pushState(null, null, '#');
+    let hash = sessionStorage.getItem('return to hash');
+    sessionStorage.removeItem('return to hash');
+    setHash(hash);
     return;
+  }
+
+  switch(true) {
+    case ('#fileList' == hash): {
+      UiDispatchers.changePage("fileList");
+      break;
+    }
+    case ('#settings' == hash): {
+      UiDispatchers.changePage("settings");
+      break;
+    }
+    case /#file\/(.*)/.test(hash): {
+      UiDispatchers.changePage("file", parseQueryString(hash.slice(hash.indexOf('?'))));
+      break;
+    }
+    case ('' == hash): {
+      UiDispatchers.changePage("home?");
+      break;
+    }
+    default: {
+      UiDispatchers.changePage("not recognized");
+    }
   }
 }
 
 window.addEventListener('hashchange', () => {
+  console.log('%cHASH CHANGE', 'font-size:15px');
   onHashChange(location.hash);
 });
 setTimeout(() => {
