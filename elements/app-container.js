@@ -3,11 +3,12 @@ import "@polymer/app-layout/app-drawer/app-drawer.js";
 import "@polymer/app-layout/app-header/app-header.js";
 import "@polymer/app-layout/app-toolbar/app-toolbar.js";
 import "@polymer/paper-item/paper-item.js";
+import "@polymer/paper-input/paper-input.js";
 import "@polymer/paper-button/paper-button.js";
 import "@polymer/paper-icon-button/paper-icon-button.js";
 import "@polymer/iron-icons/iron-icons.js";
 import "@polymer/paper-tabs/paper-tabs.js";
-import {store, DropboxCacheDispatchers} from "../app-store.js";
+import {store, DropboxCacheDispatchers, DropboxDispatchers} from "../app-store.js";
 import "./router.js";
 import {html, render} from '../node_modules/lit-html/lib/lit-extended.js';
 import {repeat} from '../node_modules/lit-html/lib/repeat.js'
@@ -99,16 +100,30 @@ export class AppContainer extends QueryMixin(HTMLElement) {
         return until(contentPromise, html`loading...`);
       }
       case 'settings':
-        return html`<p> settings :-P </p>`;
+        return html`
+          <div style="padding: 10px;">
+            <p> settings :-P </p>
+            <paper-input id="pathInput" label="path/to/dropbox/directory" value=${this.path.replace(/^\//, '')} on-value-changed=${e => this.onPathChange(this.$.pathInput.value)}>
+              <span slot="prefix">/</span>
+            </paper-input>
+          </div>
+        `;
       default:
         return html`<div> page "${pageName}" not recognized </div>`;
     }
+  }
+  onPathChange(path) {
+    if (path.length) {
+      path = '/'+path
+    }
+    DropboxDispatchers.setPath(path)
+    DropboxCacheDispatchers.listFiles(null);
   }
   async onFileClick(path) {
     setHash(`file/${encodeURIComponent(path)}${toQueryString({view: 'plain'})}`);
   }
   onFetchBtn() {
-    this.dropbox.filesListFolder({path: '/vim-notes', recursive: false, include_media_info: false, include_deleted: false, include_has_explicit_shared_members: false, include_mounted_folders: false}).then(response => {
+    this.dropbox.filesListFolder({path: this.path, recursive: false, include_media_info: false, include_deleted: false, include_has_explicit_shared_members: false, include_mounted_folders: false}).then(response => {
       DropboxCacheDispatchers.listFiles(response.entries);
     });
   }
@@ -138,6 +153,7 @@ export class AppContainer extends QueryMixin(HTMLElement) {
       this.dropbox         = new Dropbox({ accessToken: store.getState().dropbox.access_token});
       this.fileList        = store.getState().dropboxCache.fileList;
       this.pageName        = store.getState().ui.pageName;
+      this.path            = store.getState().dropbox.path;
       this.render();
     });
   }

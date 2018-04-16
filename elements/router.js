@@ -8,10 +8,6 @@ export function setHash(hash) {
 
 function onHashChange(hash) {
 
-  if (!store.getState().dropbox.access_token && localStorage.getItem('dropbox-authentication')) {
-    DropboxDispatchers.authenticate(JSON.parse(localStorage.getItem('dropbox-authentication')));
-  }
-
   let parseResults = parseQueryString(location.hash);
   if (parseResults.access_token) {
     localStorage.setItem('dropbox-authentication', JSON.stringify(parseResults));

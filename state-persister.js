@@ -1,5 +1,9 @@
 import objectPath from '../lib/object-path.js';
-import {store, DropboxCacheDispatchers} from "../app-store.js";
+import {store, DropboxDispatchers, DropboxCacheDispatchers} from "../app-store.js";
+
+if (!store.getState().dropbox.access_token && localStorage.getItem('dropbox-authentication')) {
+  DropboxDispatchers.authenticate(JSON.parse(localStorage.getItem('dropbox-authentication')));
+}
 
 
 function watchPath(path, listener) {
@@ -36,4 +40,12 @@ watchPath('dropboxCache.files', files => {
     timeUpdated: new Date()
   };
   localStorage.setItem('dropboxCache.files', JSON.stringify(files));
+});
+
+if (localStorage.getItem('dropbox.path')) {
+  let path = localStorage.getItem('dropbox.path');
+  DropboxDispatchers.setPath(path);
+}
+watchPath('dropbox.path', path => {
+  localStorage.setItem('dropbox.path', path);
 });

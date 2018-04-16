@@ -31,12 +31,21 @@ function dropboxReducer(state, action) {
       let {access_token, token_type, uid, account_id} = action;
       return { ...state, access_token, token_type, uid, account_id};
     }
+    case 'dropbox-path': {
+      return {
+        ...state,
+        path: action.path
+      };
+    }
     default:
       return state || {
+
         access_token: null,
         token_type: null,
         uid: null,
-        account_id: null
+        account_id: null,
+
+        path: ''
       };
   }
 }
@@ -47,6 +56,12 @@ export let DropboxDispatchers = {
       type: 'dropbox-authenticate'
     };
     store.dispatch(action);
+  },
+  setPath(path) {
+    store.dispatch({
+      path,
+      type: 'dropbox-path'
+    });
   }
 }
 
@@ -81,7 +96,7 @@ export let DropboxCacheDispatchers = {
     });
   },
   listFiles(fileList) {
-    if (!Array.isArray(fileList)) throw new Error('need array');
+    if (!Array.isArray(fileList) && null !== fileList) throw new Error('need array or null');
     store.dispatch({
       fileList,
       type: 'dropboxcache-listFiles'
