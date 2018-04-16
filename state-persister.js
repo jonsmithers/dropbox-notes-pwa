@@ -1,5 +1,5 @@
-import objectPath from '../lib/object-path.js';
-import {store, DropboxDispatchers, DropboxCacheDispatchers} from "../app-store.js";
+import objectPath from './lib/object-path.js';
+import {store, DropboxDispatchers, DropboxCacheDispatchers} from "./app-store.js";
 
 if (!store.getState().dropbox.access_token && localStorage.getItem('dropbox-authentication')) {
   DropboxDispatchers.authenticate(JSON.parse(localStorage.getItem('dropbox-authentication')));
