@@ -55,8 +55,16 @@ function dropboxCacheReducer(state, action) {
     case('dropboxcache-listFiles'): {
       return {
         ...state,
+        files: {},
         fileList: action.fileList
       }
+    }
+    case('dropboxcache-setFile'): {
+      state.files = {
+        ...state.files,
+        [action.name]: action.contents
+      }
+      return state;
     }
     default:
       return state || {
@@ -65,6 +73,13 @@ function dropboxCacheReducer(state, action) {
   }
 }
 export let DropboxCacheDispatchers = {
+  setFile(name, contents) {
+    store.dispatch({
+      name,
+      contents,
+      type: 'dropboxcache-setFile'
+    });
+  },
   listFiles(fileList) {
     if (!Array.isArray(fileList)) throw new Error('need array');
     store.dispatch({

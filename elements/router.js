@@ -46,7 +46,6 @@ function onHashChange(hash) {
 }
 
 window.addEventListener('hashchange', () => {
-  console.log('%cHASH CHANGE', 'font-size:15px');
   onHashChange(location.hash);
 });
 setTimeout(() => {

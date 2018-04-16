@@ -57,8 +57,8 @@ export class AppContainer extends QueryMixin(HTMLElement) {
         <app-toolbar>
           Hello there
           
-          <paper-icon-button icon="menu" on-click=${() => setHash('settings')}></paper-icon-button>
-          <paper-icon-button icon="menu" on-click=${() => setHash('fileList')}></paper-icon-button>
+          <paper-icon-button icon="settings" on-click=${() => setHash('settings')}></paper-icon-button>
+          <paper-icon-button icon="list" on-click=${() => setHash('fileList')}></paper-icon-button>
 
           </paper-icon-button>
         </app-toolbar>
@@ -84,11 +84,16 @@ export class AppContainer extends QueryMixin(HTMLElement) {
       case 'file': {
         let path = decodeURIComponent(/file\/(.*?)\?/.exec(location.hash)[1]);
         let contentPromise = this.dropbox.filesDownload({path}).then(async ({fileBlob}) => {
-          let fileReader = new FileReader();
-          let readPromise = new Promise(resolve => fileReader.onload=resolve);
-          fileReader.readAsText(fileBlob);
-          await readPromise;
-          let fileContents = fileReader.result;
+          let fileContents = store.getState().dropboxCache.files[path];
+          if (!fileContents) {
+            console.log('%cFETCHING FILE FRESH', 'font-size:15px');
+            let fileReader = new FileReader();
+            let readPromise = new Promise(resolve => fileReader.onload=resolve);
+            fileReader.readAsText(fileBlob);
+            await readPromise;
+            fileContents = fileReader.result;
+            DropboxCacheDispatchers.setFile(path, fileContents);
+          }
           return html`<pre>${fileContents}</pre>`;
         });
         return until(contentPromise, html`loading...`);
