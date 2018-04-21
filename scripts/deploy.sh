@@ -1,5 +1,5 @@
 #!/bin/bash
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 rm -r ./dist/* # preserve .git folder for deploying to gh-pages
 node_modules/webpack/bin/webpack.js
 cp dist-index.html ./dist/index.html

@@ -9,7 +9,8 @@
   "flat": true,
   "scripts": {
     "zstart": "http-server -o -c -1",
-    "start": "./node_modules/polymer-cli/bin/polymer.js serve --module-resolution=node"
+    "start": "./node_modules/polymer-cli/bin/polymer.js serve --module-resolution=node",
+    "deploy": "./scripts/deploy.sh"
   },
   "dependencies": {
     "@polymer/app-layout": "3.0.0-pre.12",
