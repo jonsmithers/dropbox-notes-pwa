@@ -18,7 +18,7 @@ import {QueryMixin} from './query-mixin.js';
 import objectPath from '../lib/object-path.js';
 import {setHash} from '../elements/router.js';
 import {toQueryString} from '../utils.js';
-import '../state-persister.js';
+import {DropboxDao} from '../state-persister.js';
 
 export class AppContainer extends QueryMixin(HTMLElement) {
   static get is() {
@@ -79,23 +79,13 @@ export class AppContainer extends QueryMixin(HTMLElement) {
               fetch notes
             </paper-button>
             ` : repeat(this.fileList || [], null, (file) => html`
-              <paper-item on-click=${() => this.onFileClick(file.path_display)} data="${file}">${file.name}</paper-item>
+              <paper-item on-click=${() => this.onFileClick(file.path)} data="${file}">${file.name}</paper-item>
             `)
          }`;
       case 'file': {
         let path = decodeURIComponent(/file\/(.*?)\?/.exec(location.hash)[1]);
-        let contentPromise = this.dropbox.filesDownload({path}).then(async ({fileBlob}) => {
-          let fileContents = store.getState().dropboxCache.files[path];
-          if (!fileContents) {
-            console.log('%cFETCHING FILE FRESH', 'font-size:15px');
-            let fileReader = new FileReader();
-            let readPromise = new Promise(resolve => fileReader.onload=resolve);
-            fileReader.readAsText(fileBlob);
-            await readPromise;
-            fileContents = fileReader.result;
-            DropboxCacheDispatchers.setFile(path, fileContents);
-          }
-          return html`<pre>${fileContents}</pre>`;
+        let contentPromise = DropboxDao.instance().read(path).then(contents => {
+          return html`<textarea type="text" value=${contents} readOnly style="flex-grow:1;padding:10px"></textarea>`;
         });
         return until(contentPromise, html`loading...`);
       }
@@ -103,7 +93,7 @@ export class AppContainer extends QueryMixin(HTMLElement) {
         return html`
           <div style="padding: 10px;">
             <p> settings :-P </p>
-            <paper-input id="pathInput" label="path/to/dropbox/directory" value=${this.path.replace(/^\//, '')} on-value-changed=${e => this.onPathChange(this.$.pathInput.value)}>
+            <paper-input disabled id="pathInput" label="path/to/dropbox/directory" value=${this.path.replace(/^\//, '')} on-value-changed=${() => this.onPathChange(this.$.pathInput.value)}>
               <span slot="prefix">/</span>
             </paper-input>
           </div>
@@ -122,10 +112,9 @@ export class AppContainer extends QueryMixin(HTMLElement) {
   async onFileClick(path) {
     setHash(`file/${encodeURIComponent(path)}${toQueryString({view: 'plain'})}`);
   }
-  onFetchBtn() {
-    this.dropbox.filesListFolder({path: this.path, recursive: false, include_media_info: false, include_deleted: false, include_has_explicit_shared_members: false, include_mounted_folders: false}).then(response => {
-      DropboxCacheDispatchers.listFiles(response.entries);
-    });
+  async onFetchBtn() {
+    let list = await DropboxDao.instance().list();
+    DropboxCacheDispatchers.listFiles(list);
   }
   constructor() {
     super();
