@@ -113,8 +113,9 @@ export class AppContainer extends QueryMixin(HTMLElement) {
     }
   }
   async onNewFileClick() {
-    await DropboxDao.instance().create('untitled', 'fake new document');
-    setHash(`file/${encodeURIComponent('untitled')}${toQueryString({view: 'plain'})}`);
+    let {path} = await DropboxDao.instance().create('untitled', 'fake new document');
+    console.log('path', path);
+    setHash(`file/${encodeURIComponent(path)}${toQueryString({view: 'plain'})}`);
   }
   onPathChange(path) {
     if (path.length) {
