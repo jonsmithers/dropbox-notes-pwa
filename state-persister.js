@@ -1,6 +1,6 @@
 import objectPath from './lib/object-path.js';
 import {store, DropboxDispatchers, DropboxCacheDispatchers} from "./app-store.js";
-import {Dropbox} from '../lib/dropbox.js';
+import {Dropbox} from './lib/dropbox.js';
 
 class DaoInterface {
   constructor() {
