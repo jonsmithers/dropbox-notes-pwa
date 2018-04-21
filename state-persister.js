@@ -76,12 +76,22 @@ export class DropboxDao extends DaoInterface {
     await readPromise;
     return fileReader.result;
   }
-  update() {}
-  async create(path) {
+  async update(path, contents) { // this adds files if they don't exist
     path = (this.basePath || '/') + path;
     let result = await this._dropbox.filesUpload({
       autorename: true,
-      contents: "UPDATED CONTENTS",
+      contents,
+      mode: {'.tag': 'overwrite'}, // TODO make this update so it's not dangerous
+      mute: false,
+      path: this.basePath + path,
+    });
+    return this._mapListing(result);
+  }
+  async create(path, contents) {
+    path = (this.basePath || '/') + path;
+    let result = await this._dropbox.filesUpload({
+      autorename: true,
+      contents,
       mode: {'.tag': 'add'},
       mute: false,
       path: this.basePath + path,

@@ -28,7 +28,8 @@ function onHashChange(hash) {
       break;
     }
     case /#file\/(.*)/.test(hash): {
-      UiDispatchers.changePage("file", parseQueryString(hash.slice(hash.indexOf('?'))));
+      let path = decodeURIComponent(/file\/(.*?)\?/.exec(location.hash)[1]);
+      UiDispatchers.changePage("file", {...parseQueryString(hash.slice(hash.indexOf('?'))), path});
       break;
     }
     case ('' == hash): {

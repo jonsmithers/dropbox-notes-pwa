@@ -16,6 +16,8 @@ export const QueryMixin = (clazz) => class extends clazz {
   }
   fire(eventName, detail) {
     this.dispatchEvent(new CustomEvent(eventName, {
+      bubbles: true,
+      composed: true, // pass thru shadow-doms
       detail
     }));
   }
