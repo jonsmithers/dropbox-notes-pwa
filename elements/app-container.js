@@ -7,6 +7,7 @@ import "@polymer/paper-button/paper-button.js";
 import "@polymer/paper-toast/paper-toast.js";
 import "@polymer/paper-icon-button/paper-icon-button.js";
 import "@polymer/paper-input/paper-input.js";
+import "@polymer/paper-fab/paper-fab.js";
 import "@polymer/paper-item/paper-item.js";
 import "@polymer/paper-tabs/paper-tabs.js";
 import "./dropbox-authentication-button.js";
@@ -72,10 +73,25 @@ export class AppContainer extends QueryMixin(HTMLElement) {
             <paper-button on-click=${() => this.onFetchBtn()}>
               fetch notes
             </paper-button>
-            ` : repeat(this.fileList || [], null, (file) => html`
+          ` : html`
+
+            <paper-button on-click=${() => this.onFetchBtn()}>
+              refresh
+            </paper-button>
+            ${repeat(this.fileList || [], null, (file) => html`
               <paper-item on-click=${() => this.onFileClick(file.path)} data="${file}">${file.name}</paper-item>
-            `)
-         }`;
+            `)}
+            `}
+       <style>
+         paper-fab#newFile {
+           position: fixed;
+           right: 20px;
+           bottom: 20px;
+           background-color: red;
+         }
+       </style>
+         <paper-fab icon="add" id="newFile" on-click=${()=>this.onNewFileClick()}></paper-fab>
+        `;
       case 'file': {
         let path = store.getState().ui.pageParams.path;
         let contentPromise = DropboxDao.instance().read(path).then(contents => {
@@ -95,6 +111,10 @@ export class AppContainer extends QueryMixin(HTMLElement) {
       default:
         return html`<div> page "${pageName}" not recognized </div>`;
     }
+  }
+  async onNewFileClick() {
+    await DropboxDao.instance().create('untitled', 'fake new document');
+    setHash(`file/${encodeURIComponent('untitled')}${toQueryString({view: 'plain'})}`);
   }
   onPathChange(path) {
     if (path.length) {
