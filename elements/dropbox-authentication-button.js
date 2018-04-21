@@ -26,7 +26,8 @@ export class DropboxAuthenticationButton extends PolymerElement {
   }
   constructor(){
     super();
-    let dropbox = new Dropbox.Dropbox({ clientId: "n3vr1jhr2vpy2az" });
+    // let dropbox = new Dropbox.Dropbox({ clientId: "n3vr1jhr2vpy2az" }); // VimNotes
+    let dropbox = new Dropbox.Dropbox({ clientId: "wl4k2y0xsplg260" }); // Notes Folder PWA
     this._authenticationUrl = dropbox.getAuthenticationUrl(window.location.toString());
   }
 }
