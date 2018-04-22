@@ -51,18 +51,17 @@ export class AppContainer extends QueryMixin(HTMLElement) {
       <div id="flexContainer" class="verticalFlex">
         <app-toolbar>
           Hello there
-          
+
           <paper-icon-button icon="settings" on-click=${() => setHash('settings')}></paper-icon-button>
           <paper-icon-button icon="list" on-click=${() => setHash('fileList')}></paper-icon-button>
 
-          </paper-icon-button>
         </app-toolbar>
         ${this.isAuthenticated ? 
             this.computePage(this.pageName) :
             html`<dropbox-authentication-button></dropbox-authentication-button>`}
-      </div>
-      <paper-toast id="toast"></paper-toast>
-    `, this.shadowRoot);
+        </div>
+        <paper-toast id="toast"></paper-toast>
+      `, this.shadowRoot);
   }
   computePage(pageName) {
     switch(pageName) {
@@ -81,16 +80,16 @@ export class AppContainer extends QueryMixin(HTMLElement) {
             ${repeat(this.fileList || [], null, (file) => html`
               <paper-item on-click=${() => this.onFileClick(file.path)} data="${file}">${file.name}</paper-item>
             `)}
-            `}
-       <style>
-         paper-fab#newFile {
-           position: fixed;
-           right: 20px;
-           bottom: 20px;
-           background-color: red;
-         }
-       </style>
-         <paper-fab icon="add" id="newFile" on-click=${()=>this.onNewFileClick()}></paper-fab>
+          `}
+          <style>
+            paper-fab#newFile {
+              position: fixed;
+              right: 20px;
+              bottom: 20px;
+              background-color: red;
+            }
+          </style>
+          <paper-fab icon="add" id="newFile" on-click=${()=>this.onNewFileClick()}></paper-fab>
         `;
       case 'file': {
         let path = store.getState().ui.pageParams.path;
@@ -119,9 +118,9 @@ export class AppContainer extends QueryMixin(HTMLElement) {
   }
   onPathChange(path) {
     if (path.length) {
-      path = '/'+path
+      path = '/'+path;
     }
-    DropboxDispatchers.setPath(path)
+    DropboxDispatchers.setPath(path);
     DropboxCacheDispatchers.listFiles(null);
   }
   async onFileClick(path) {
