@@ -56,7 +56,7 @@ export class AppContainer extends QueryMixin(HTMLElement) {
           <paper-icon-button icon="list" on-click=${() => setHash('fileList')}></paper-icon-button>
 
         </app-toolbar>
-        ${this.isAuthenticated ? 
+        ${this.isAuthenticated ?
             this.computePage(this.pageName) :
             html`<dropbox-authentication-button></dropbox-authentication-button>`}
         </div>
@@ -67,20 +67,10 @@ export class AppContainer extends QueryMixin(HTMLElement) {
     switch(pageName) {
       case 'fileList':
         return html`
-          <div> Files </div>
-          ${!this.fileList ? html`
-            <paper-button on-click=${() => this.onFetchBtn()}>
-              fetch notes
-            </paper-button>
-          ` : html`
-
-            <paper-button on-click=${() => this.onFetchBtn()}>
-              refresh
-            </paper-button>
-            ${repeat(this.fileList || [], null, (file) => html`
-              <paper-item on-click=${() => this.onFileClick(file.path)} data="${file}">${file.name}</paper-item>
-            `)}
-          `}
+          <paper-icon-button icon="refresh" on-click=${() => this.onFetchBtn()}></paper-icon-button>
+          ${repeat(this.fileList || [], null, (file) => html`
+            <paper-item on-click=${() => this.onFileClick(file.path)} data="${file}">${file.path}</paper-item>
+          `)}
           <style>
             paper-fab#newFile {
               position: fixed;
@@ -93,9 +83,10 @@ export class AppContainer extends QueryMixin(HTMLElement) {
         `;
       case 'file': {
         let path = store.getState().ui.pageParams.path;
-        let contentPromise = DropboxDao.instance().read(path).then(contents => {
-          return html`<plaintext-viewer value=${contents}></plaintext-viewer>`;
-        });
+        let contentPromise = navigator.onLine ? DropboxDao.instance().read(path) : localDao.read(path);
+        contentPromise = contentPromise.then(contents =>
+          html`<plaintext-viewer value=${contents}></plaintext-viewer>`
+        );
         return until(contentPromise, html`loading...`);
       }
       case 'settings':
@@ -151,12 +142,12 @@ export class AppContainer extends QueryMixin(HTMLElement) {
       console.log('n', n);
       console.log('o', o);
     });
-    store.subscribe(() => {
+    store.subscribe(async () => {
       this.isAuthenticated = !!store.getState().dropbox.access_token;
       this.dropbox         = new Dropbox({ accessToken: store.getState().dropbox.access_token});
-      this.fileList        = store.getState().dropboxCache.fileList;
       this.pageName        = store.getState().ui.pageName;
       this.path            = store.getState().dropbox.path;
+      await localDao.list().then(list => this.fileList = list)
       this.render();
     });
     this.addEventListener('editor-save', async ({detail: {value}}) => {

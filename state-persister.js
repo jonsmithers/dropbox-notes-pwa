@@ -71,8 +71,8 @@ class LocalStorageDao extends DaoInterface {
     localStorage.setItem(`dao-cache-file-${path}`, contents);
   }
 }
-window.LocalStorageDao = LocalStorageDao;
-window.localDao = new LocalStorageDao();
+let localDao = new LocalStorageDao();
+window.localDao = localDao;
 
 export class DropboxDao extends DaoInterface {
   constructor(accessToken, basePath='') {
@@ -146,8 +146,54 @@ export class DropboxDao extends DaoInterface {
     };
   }
 }
-window.DropboxDao = DropboxDao;
 setTimeout( () => window.dropboxDao = DropboxDao.instance(), 1000);
+
+class AgnosticDao extends DaoInterface {
+  list() {
+    return navigator.onLine ?
+      DropboxDao.instance().list(...arguments) :
+      localDao.list(...arguments);
+  }
+  read(path) {
+    if (navigator.onLine) {
+      let result = DropboxDao.instance().read(...arguments);
+      result.then(contents =>
+        localDao.update(path, contents)
+      );
+      return result;
+    } else {
+      return localDao.read(path);
+    }
+  }
+  update() {
+    if (navigator.onLine) {
+      let result = DropboxDao.instance().update(...arguments);
+      localDao.update(...arguments);
+      return result;
+    } else {
+      return localDao.update(...arguments);
+    }
+  }
+  delete() {
+    if (navigator.onLine) {
+      let result = DropboxDao.instance().delete(...arguments);
+      localDao.delete(...arguments);
+      return result;
+    } else {
+      throw new Error("can't delete while offline");
+    }
+  }
+  create() {
+    if (navigator.onLine) {
+      let result = DropboxDao.instance().create(...arguments);
+      localDao.create(...arguments);
+      return result;
+    } else {
+      return localDao.create(...arguments);
+    }
+  }
+}
+window.agnosticDao = new AgnosticDao();
 
 
 if (!store.getState().dropbox.access_token && localStorage.getItem('dropbox-authentication')) {
