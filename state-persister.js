@@ -27,16 +27,52 @@ window.DaoInterface = DaoInterface;
 class LocalStorageDao extends DaoInterface {
   constructor() { super(); }
   async list(path='') {
-    return JSON.parse(localStorage.getItem(`dao-cache-${path}-list`)) || [];
+    return JSON.parse(localStorage.getItem(`dao-cache-list-${path}`)) || [];
   }
-  create(path) {
-    let newindex = [...this.list(), {
+  async update(path, contents) {
+    let newList = await this.list();
+    let basePath = this._basePath(path);
+    let fileEntry = newList.find(i => i.path === path);
+    if (!fileEntry) {
+      throw new Error(`${path} does not exist in dao`);
+    }
+    fileEntry.lastUpdated = Date.now();
+    localStorage.setItem(`dao-cache-list-${basePath}`, JSON.stringify(newList));
+    localStorage.setItem(`dao-cache-file-${path}`, contents);
 
-    }];
-    localStorage.setItem(`dao-cache-${path}-list`, JSON.stringify(newindex));
+  }
+  async delete(path) {
+    let basePath = this._basePath(path);
+    let newList = (await this.list(basePath)).filter(i => i.path !== path);
+    localStorage.setItem(`dao-cache-list-${basePath}`, JSON.stringify(newList));
+    localStorage.removeItem(`dao-cache-file-${path}`);
+  }
+  async read(path) {
+    return localStorage.getItem(`dao-cache-file-${path}`);
+  }
+  _basePath(path) {
+    return path.replace(/\/?[^/]*$/, '');
+  }
+  async create(path, contents) {
+    // TODO need to check for existing file
+    let basePath = this._basePath(path);
+    let newList = [
+      ...await this.list(basePath),
+      {
+        lastUpdated: Date.now(),
+        path,
+      }
+    ];
+    let dupeCheck = newList.filter(i => i.path === path).length;
+    if (dupeCheck > 1) {
+      throw new Error("this file already exists. This situation is not handled yet");
+    }
+    localStorage.setItem(`dao-cache-list-${basePath}`, JSON.stringify(newList));
+    localStorage.setItem(`dao-cache-file-${path}`, contents);
   }
 }
 window.LocalStorageDao = LocalStorageDao;
+window.localDao = new LocalStorageDao();
 
 export class DropboxDao extends DaoInterface {
   constructor(accessToken, basePath='') {
