@@ -83,7 +83,7 @@ export class AppContainer extends QueryMixin(HTMLElement) {
         `;
       case 'file': {
         let path = store.getState().ui.pageParams.path;
-        let contentPromise = navigator.onLine ? DropboxDao.instance().read(path) : localDao.read(path);
+        let contentPromise = agnosticDao.read(path);
         contentPromise = contentPromise.then(contents =>
           html`<plaintext-viewer value=${contents}></plaintext-viewer>`
         );
@@ -147,7 +147,7 @@ export class AppContainer extends QueryMixin(HTMLElement) {
       this.dropbox         = new Dropbox({ accessToken: store.getState().dropbox.access_token});
       this.pageName        = store.getState().ui.pageName;
       this.path            = store.getState().dropbox.path;
-      await localDao.list().then(list => this.fileList = list)
+      await agnosticDao.list().then(list => this.fileList = list)
       this.render();
     });
     this.addEventListener('editor-save', async ({detail: {value}}) => {
