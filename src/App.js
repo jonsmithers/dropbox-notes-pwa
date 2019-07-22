@@ -95,9 +95,22 @@ function DropboxLoginPopup() {
 }
 
 function Home() {
+  const dropboxCredentials = DropboxCredentials.useContainer();
+  const [files, setFiles] = useState(null);
+  useEffect(() => {
+    console.log('files', files);
+    console.log('credentials', dropboxCredentials.credentials);
+    if (!files && dropboxCredentials.credentials) {
+      const dropbox = new Dropbox({accessToken: dropboxCredentials.credentials.access_token, fetch: window.fetch})
+      dropbox.filesListFolder({path: ''}).then(setFiles)
+    }
+  });
   return (
     <div>
       <span>Im home</span>
+      <div>
+          {files ? files.entries.map(entry => (<div key={entry.name}>{entry.name}</div>)) : <span>loading files...</span>}
+      </div>
     </div>
   );
 }
