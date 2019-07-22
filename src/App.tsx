@@ -6,6 +6,8 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import { createContainer } from "unstated-next"
 import Button from '@material-ui/core/Button';
 
+// http://dropbox.github.io/dropbox-sdk-js/
+
 type DropboxCredentialsType = {[index:string]:string};
 function useDropboxCredentials(initialState: DropboxCredentialsType|null = null) {
   let [credentials, setCredentials] = useState(initialState)
@@ -109,6 +111,35 @@ function Home() {
       dropbox.filesListFolder({path: ''}).then(x => {
         setFiles(x);
       });
+    }
+  });
+  useEffect(() => {
+    if (files && dropboxCredentials.credentials) {
+      console.log('%cdownloading all files', 'font-size:15px');
+      const dropbox = new Dropbox({accessToken: dropboxCredentials.credentials.access_token, fetch: window.fetch})
+      const promises = files.entries.map(file => {
+        let arg: filesTypes.DownloadArg = {
+          path: '/' + file.name
+        }
+        return dropbox.filesDownload(arg);
+      }).map(async fileDownload => {
+        let file = await fileDownload;
+        let blob: Blob;
+        // @ts-ignore
+        blob = file.fileBlob;
+        let fileReader = new FileReader();
+        let readPromise = new Promise(resolve => fileReader.onload=resolve);
+        fileReader.readAsText(blob);
+        await readPromise;
+        // @ts-ignore
+        file.text = fileReader.result;
+        return file;
+      })
+      Promise.all(promises).then(files => {
+        console.log(files);
+      })
+    } else {
+      console.log('download later');
     }
   });
   return (
