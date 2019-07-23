@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import { createContainer } from "unstated-next"
 import Button from '@material-ui/core/Button';
 import { DropboxService } from './persistence/DropboxService';
+import { IndexedDBService } from './persistence/IndexedDBService';
 import { PersistenceService, File } from './persistence/PersistenceService';
 
 type DropboxCredentialsType = {[index:string]:string};
@@ -111,7 +112,15 @@ function Home() {
   const dbs = useDropboxService()
   const dropboxCredentials = DropboxCredentials.useContainer();
   const [files, setFiles] = useState<File[]|null>(null);
-  !files && dbs && dbs.getAllFiles().then(setFiles);
+  !files && dbs && dbs.getAllFiles().then(files => {
+    debugger
+    for (let file of files) {
+      new IndexedDBService().addFile(file);
+    }
+  });
+  new IndexedDBService().getAllFiles().then(files => {
+    console.log('files', files);
+  });
   return (
     <div>
       <span>Im home</span>
