@@ -5,29 +5,19 @@ import { Dropbox, files as filesTypes } from 'dropbox'
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { createContainer } from "unstated-next"
 import Button from '@material-ui/core/Button';
-import { DropboxService } from './persistence/DropboxService';
+import { DropboxService, useDropboxService, DropboxCredentials, DropboxCredState } from './persistence/DropboxService';
 import { IndexedDBService } from './persistence/IndexedDBService';
 import { PersistenceService, File } from './persistence/PersistenceService';
 
-type DropboxCredentialsType = {[index:string]:string};
-function useDropboxCredentials(initialState: DropboxCredentialsType|null = null) {
-  let [credentials, setCredentials] = useState(initialState)
-  return { credentials, setCredentials }
-}
-const DropboxCredentials = createContainer(useDropboxCredentials)
 const dropbox_credential_prefix = 'dropbox-credentials.';
 
 const dropbox = new Dropbox({ clientId: "wl4k2y0xsplg260", fetch: window.fetch });
 const authUrl = dropbox.getAuthenticationUrl(window.location.toString())
 
-function useDropboxService(): PersistenceService|null {
-  const dropboxCredentials = DropboxCredentials.useContainer();
-  const [dropboxService, setDropboxService] = useState<DropboxService|null>(null);
-  if (dropboxCredentials.credentials && !dropboxService) {
-    setDropboxService(new DropboxService(new Dropbox({ accessToken: dropboxCredentials.credentials.access_token })))
-  }
-  return dropboxService;
+function useIndexedDBService(): PersistenceService {
+  return useIndexedDBService.service;
 }
+useIndexedDBService.service = new IndexedDBService();
 
 function App() {
   return (
@@ -70,10 +60,10 @@ function DropboxLoginPopup() {
       const params = new URLSearchParams(location.hash.slice(1));
 
       type KeyValPair = [string, string]
-      const paramsObject: DropboxCredentialsType = Array.from(params.entries()).reduce((accumulator: DropboxCredentialsType, [k, v]: KeyValPair) => {
-        accumulator[k] = v;
+      const paramsObject: DropboxCredState['credentials'] = Array.from(params.entries()).reduce((accumulator: Partial<DropboxCredState['credentials']>, [k, v]: KeyValPair) => {
+        accumulator![k] = v;
         return accumulator;
-      }, {});
+      }, {}) as DropboxCredState['credentials'];
 
       for (let [key, val] of params.entries()) {
         sessionStorage.setItem(`${dropbox_credential_prefix}${key}`, val);
@@ -85,14 +75,14 @@ function DropboxLoginPopup() {
   useEffect(() => {
     // get creds from session stroage
     if (!dropboxCredentials.credentials && sessionStorage.getItem(`${dropbox_credential_prefix}access_token`)) {
-      const credentials: DropboxCredentialsType = {};
+      const credentials: Partial<DropboxCredState['credentials']> = {};
       for (let i = 0; i < sessionStorage.length; i++) {
         const key: string = sessionStorage.key(i)!;
         if (key.startsWith(dropbox_credential_prefix)) {
           credentials[key.replace(dropbox_credential_prefix, '')] = sessionStorage.getItem(key)!;
         }
       }
-      dropboxCredentials.setCredentials(credentials);
+      dropboxCredentials.setCredentials(credentials as DropboxCredState['credentials']);
     }
   })
   if (dropboxCredentials.credentials) {
@@ -110,8 +100,8 @@ function DropboxLoginPopup() {
 }
 
 function Home() {
-  const dbs = useDropboxService()
-  const dropboxCredentials = DropboxCredentials.useContainer();
+  const dbs = useDropboxService(DropboxCredentials)
+  // const dbs = useIndexedDBService();
   const [files, setFiles] = useState<File[]|null>(null);
   !files && dbs && dbs.getAllFiles().then(files => {
     debugger

@@ -14,7 +14,13 @@ export class IndexedDBService implements PersistenceService {
     throw new Error("Method not implemented.");
   }
 
-  addFile(file: File): Promise<void> {
-    return set(FILE_PREFIX + file.name, JSON.stringify(file));
+  async addFile(file: File): Promise<void> {
+    console.log('file', file);
+    let key = FILE_PREFIX + file.name;
+    if ((await keys()).includes(key)) {
+      console.warn(`key "${key}" already exists`)
+      return
+    }
+    await set(FILE_PREFIX + file.name, JSON.stringify(file));
   }
 }

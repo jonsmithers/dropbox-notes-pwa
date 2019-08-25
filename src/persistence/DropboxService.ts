@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { PersistenceService, File } from './PersistenceService';
 import { Dropbox, files as filesTypes } from 'dropbox'
+import { createContainer, Container } from "unstated-next"
 
 export class DropboxService implements PersistenceService {
   private dropbox: Dropbox;
@@ -36,3 +38,24 @@ export class DropboxService implements PersistenceService {
     throw new Error("Method not implemented.");
   }
 }
+
+export function useDropboxService(dropboxCredentials: typeof DropboxCredentials): PersistenceService|null {
+  const dropboxCredentialsContainer = dropboxCredentials.useContainer();
+  const [dropboxService, setDropboxService] = useState<DropboxService|null>(null);
+  if (dropboxCredentialsContainer.credentials && !dropboxService) {
+    setDropboxService(new DropboxService(new Dropbox({ accessToken: dropboxCredentialsContainer.credentials.access_token })))
+  }
+  return dropboxService;
+}
+
+export type DropboxCredState = {
+  credentials: {
+    [index: string]: string
+    access_token: string;
+  } | null
+};
+function useDropboxCredentials(initialCredState: DropboxCredState['credentials'] = null) {
+  let [credentials, setCredentials] = useState(initialCredState)
+  return { credentials, setCredentials }
+}
+export const DropboxCredentials = createContainer(useDropboxCredentials)
