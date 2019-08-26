@@ -24,3 +24,9 @@ export class IndexedDBService implements PersistenceService {
     await set(FILE_PREFIX + file.name, JSON.stringify(file));
   }
 }
+
+export function useIndexedDBService(): PersistenceService {
+  return useIndexedDBService.service;
+}
+useIndexedDBService.service = new IndexedDBService();
+

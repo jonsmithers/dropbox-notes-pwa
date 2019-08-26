@@ -14,11 +14,6 @@ const dropbox_credential_prefix = 'dropbox-credentials.';
 const dropbox = new Dropbox({ clientId: "wl4k2y0xsplg260", fetch: window.fetch });
 const authUrl = dropbox.getAuthenticationUrl(window.location.toString())
 
-function useIndexedDBService(): PersistenceService {
-  return useIndexedDBService.service;
-}
-useIndexedDBService.service = new IndexedDBService();
-
 function App() {
   return (
     <DropboxCredentials.Provider>
