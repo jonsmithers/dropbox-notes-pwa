@@ -3,11 +3,10 @@ import logo from './logo.svg';
 import './App.css';
 import { Dropbox, files as filesTypes } from 'dropbox'
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import { createContainer } from "unstated-next"
 import Button from '@material-ui/core/Button';
-import { DropboxService, useDropboxService, DropboxCredentials, DropboxCredState } from './persistence/DropboxService';
-import { IndexedDBService } from './persistence/IndexedDBService';
-import { PersistenceService, File } from './persistence/PersistenceService';
+import { useDropboxService, DropboxCredentials, DropboxCredState } from './persistence/DropboxService';
+import { useIndexedDBService } from './persistence/IndexedDBService';
+import { File } from './persistence/PersistenceService';
 
 const dropbox_credential_prefix = 'dropbox-credentials.';
 
@@ -96,17 +95,23 @@ function DropboxLoginPopup() {
 
 function Home() {
   const dbs = useDropboxService(DropboxCredentials)
-  // const dbs = useIndexedDBService();
+  const idb = useIndexedDBService();
   const [files, setFiles] = useState<File[]|null>(null);
-  !files && dbs && dbs.getAllFiles().then(files => {
-    debugger
-    for (let file of files) {
-      new IndexedDBService().addFile(file);
-    }
-  });
-  new IndexedDBService().getAllFiles().then(files => {
-    console.log('files', files);
-  });
+  useEffect(() => {
+    idb.getAllFiles().then(files => {
+      console.log('idb files', files);
+      setFiles(files);
+    })
+  }, []);
+  // useEffect(() => {
+  //   dbs && dbs.getAllFiles().then(files => {
+  //     console.log('db files', files);
+  //     setFiles(files);
+  //     for (let file of files) {
+  //       idb.addFile(file);
+  //     }
+  //   });
+  // }, [dbs]);
   return (
     <div>
       <span>Im home</span>

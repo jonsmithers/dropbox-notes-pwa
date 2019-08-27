@@ -1,4 +1,4 @@
-import { set, get, del, keys, clear } from 'idb-keyval';
+import { set, get, keys, clear } from 'idb-keyval';
 import { PersistenceService, File } from './PersistenceService';
 
 const FILE_PREFIX = 'files.';
@@ -6,8 +6,10 @@ const FILE_PREFIX = 'files.';
 export class IndexedDBService implements PersistenceService {
 
   async getAllFiles(): Promise<File[]> {
-    const fileKeys = (await keys()).map(key => key.toString()).filter(key => key.startsWith(FILE_PREFIX))
-    return Promise.all(fileKeys.map(key => get(key)));
+    const fileKeys: string[] = (await keys()).map(key => key.toString()).filter(key => key.startsWith(FILE_PREFIX))
+    const fileStrings: string[] = await Promise.all(fileKeys.map(key => get(key)));
+    console.log('fileStrings', fileStrings);
+    return fileStrings.map((fileString: string) => JSON.parse(fileString));
   }
 
   updateFile(file: File): Promise<void> {
