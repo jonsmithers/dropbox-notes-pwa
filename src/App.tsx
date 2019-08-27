@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import { useDropboxService, DropboxCredentials, DropboxCredState } from './persistence/DropboxService';
 import { useIndexedDBService } from './persistence/IndexedDBService';
 import { File } from './persistence/PersistenceService';
+import FileList from './FileList'
 
 const dropbox_credential_prefix = 'dropbox-credentials.';
 
@@ -32,8 +33,8 @@ function App() {
             target="_blank"
             rel="noopener noreferrer"
           > Learn React </a>
-    </header>
-  </div>
+        </header>
+      </div>
     </Router>
   </DropboxCredentials.Provider>
   );
@@ -94,30 +95,10 @@ function DropboxLoginPopup() {
 }
 
 function Home() {
-  const dbs = useDropboxService(DropboxCredentials)
-  const idb = useIndexedDBService();
-  const [files, setFiles] = useState<File[]|null>(null);
-  useEffect(() => {
-    idb.getAllFiles().then(files => {
-      console.log('idb files', files);
-      setFiles(files);
-    })
-  }, []);
-  // useEffect(() => {
-  //   dbs && dbs.getAllFiles().then(files => {
-  //     console.log('db files', files);
-  //     setFiles(files);
-  //     for (let file of files) {
-  //       idb.addFile(file);
-  //     }
-  //   });
-  // }, [dbs]);
   return (
     <div>
       <span>Im home</span>
-      <div>
-          {files ? files.map(file => (<div key={file.name}>{file.name}</div>)) : <span>loading files...</span>}
-      </div>
+      <FileList />
     </div>
   );
 }
